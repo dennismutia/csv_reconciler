@@ -18,7 +18,7 @@ The following are the app requirements:
 
 ### Running app in cli
 Run the following to run a reconciliation
-`python csv_reconciler.py -s source_csv_path -t target_csv_path -o reconciliation_ouput_path
+`python csv_reconciler.py -s source_csv_path -t target_csv_path -o reconciliation_ouput_path`
 
 ### Running app via Streamlit GUI
 Run the command below inside the app root folder and follow the prompts on the screen
