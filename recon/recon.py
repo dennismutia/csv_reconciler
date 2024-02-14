@@ -1,57 +1,83 @@
+import logging
 import pandas as pd
 
 
-def load_csv(path):
+def load_csv(path) -> pd.DataFrame:
     '''
     Import CSV file
+    Parameters:
+        path (str): path to the CSV file
+
+    Returns:
+        pd.DataFrame: dataframe from the CSV file
     '''
     return pd.read_csv(path, dtype={0: str})
 
 class Reconciliation:
-    def __init__(self, source_df, target_df):
+    def __init__(self, source_df, target_df) -> None:
         self.source_df = source_df
         self.target_df = target_df
         self.source_join_column = self.source_df.columns[0]
         self.target_join_column = self.target_df.columns[0]
     
 
-    def get_records_not_in_target(self):
+    def get_records_not_in_target(self) -> pd.DataFrame:
         '''
         Get records in source that are not in target
+        Returns:
+            pd.DataFrame: records not in target
         '''
+        logging.info("Getting records missing in target...")
         missing_in_target = self.source_df[~self.source_df[self.source_join_column].isin(self.target_df[self.target_join_column])].dropna()
         missing_in_target_results = pd.DataFrame({
             "Type": "Missing in Target",
             "Record Identifier": missing_in_target[self.source_join_column]
         })
+        logging.info("Done!")
         return missing_in_target_results
     
-    def get_records_not_in_source(self):
+    def get_records_not_in_source(self) -> pd.DataFrame:
         '''
         Get records in target that are not in source
+
+        Returns:
+            pd.DataFrame: records not in source
         '''
+        logging.info("Getting records missing in source...")
         missing_in_source = self.target_df[~self.target_df[self.target_join_column].isin(self.source_df[self.source_join_column])].dropna()
         missing_in_source_results = pd.DataFrame({
             "Type": "Missing in Source",
             "Record Identifier": missing_in_source[self.target_join_column]
         })
+        logging.info("Done!")
         return missing_in_source_results
     
 
-    def get_all_columns(self):
+    def get_all_columns(self) -> set:
         '''
         Get all columns from both files
+
+        Returns:
+            columnsset: unique columns from both files
+
         '''
         source_columns = self.source_df.columns[1:]
         target_columns = self.target_df.columns[1:]
         columns = set(source_columns.append(target_columns))
         return columns
 
-    def compare_columns(self, columns):
+    def compare_columns(self, columns) -> pd.DataFrame:
         '''
         Compare columns between the two files
-        '''
+
+        Parameters:
+            columns (list): list of columns to compare
         
+        Returns:
+            pd.DataFrame: dataframe of discrepancies
+        '''
+
+        logging.info("Comparing source and target columns...")
         results_df = pd.DataFrame()
         for column in columns:
             source_df = self.source_df[[self.source_join_column, column]].dropna()
@@ -66,5 +92,6 @@ class Reconciliation:
                 "Target Value": comparison_df[column + '_target']
             })
             results_df = pd.concat([results_df, differences_df])
+        logging.info("Done!")
 
         return results_df
