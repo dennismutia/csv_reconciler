@@ -4,7 +4,7 @@ import pandas as pd
 
 from recon.recon import load_csv, Reconciliation  # assuming recon.py is in the same directory
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(level=logging.INFO)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='CLI for reconciliation')
