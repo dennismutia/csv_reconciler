@@ -11,7 +11,19 @@ def load_csv(path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe from the CSV file
     '''
-    return pd.read_csv(path, dtype={0: str})
+    try:
+        logging.info(f"Loading file from {path}...")
+        return pd.read_csv(path, dtype={0: str})
+    except FileNotFoundError:
+        logging.error(f"File not found at {path}. Please check the path and try again.")
+    except pd.errors.ParserError as e:
+        logging.error(f"Error parsing csv file. Details: {e}")
+    except pd.errors.EmptyDataError as e:
+        logging.error(f"Empty csv file.")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred. Details: {e}")
+
+    
 
 class Reconciliation:
     def __init__(self, source_df, target_df) -> None:
