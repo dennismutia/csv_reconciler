@@ -22,7 +22,8 @@ def main():
 
     if source is not None and target is not None:
         recon = Reconciliation(source_df, target_df)
-        missing_records_df = recon.get_missing_records()
+        records_not_in_target = recon.get_records_not_in_target()
+        records_not_in_source = recon.get_records_not_in_source()
 
         # compare columns
         st.sidebar.title("Column Selection")
@@ -37,7 +38,10 @@ def main():
         column_comparison_df = recon.compare_columns(selected_columns)
         
         # Display results
-        result_df = pd.concat([missing_records_df, column_comparison_df]) if not column_comparison_df.empty else missing_records_df
+        if column_comparison_df.empty:
+            result_df = pd.concat([records_not_in_source, records_not_in_target])
+        result_df = pd.concat([records_not_in_source, records_not_in_target, column_comparison_df])
+        
         st.subheader("Reconciliation Results")
         if result_df.empty:
             st.success("No discrepancies found!")

@@ -14,25 +14,48 @@ class Reconciliation:
         self.source_join_column = self.source_df.columns[0]
         self.target_join_column = self.target_df.columns[0]
 
-    def get_missing_records(self):
-        '''
-        Compare files and identify missing records
-        '''
+    # def get_missing_records(self):
+    #     '''
+    #     Compare files and identify missing records
+    #     '''
 
+    #     missing_in_target = self.source_df[~self.source_df[self.source_join_column].isin(self.target_df[self.target_join_column])].dropna()
+    #     missing_in_source = self.target_df[~self.target_df[self.target_join_column].isin(self.source_df[self.source_join_column])].dropna()
+    #     missing_in_source_results = pd.DataFrame({
+    #         "Type": "Missing in Source",
+    #         "Record Identifier": missing_in_source[self.target_join_column]
+    #     })
+    #     missing_in_target_results = pd.DataFrame({
+    #         "Type": "Missing in Target",
+    #         "Record Identifier": missing_in_target[self.source_join_column]
+    #     })
+
+    #     results_df = pd.concat([missing_in_source_results, missing_in_target_results])
+
+    #     return results_df
+    
+
+    def get_records_not_in_target(self):
+        '''
+        Get records in source that are not in target
+        '''
         missing_in_target = self.source_df[~self.source_df[self.source_join_column].isin(self.target_df[self.target_join_column])].dropna()
+        missing_in_target_results = pd.DataFrame({
+            "Type": "Missing in Target",
+            "Record Identifier": missing_in_target[self.source_join_column]
+        })
+        return missing_in_target_results
+    
+    def get_records_not_in_source(self):
+        '''
+        Get records in target that are not in source
+        '''
         missing_in_source = self.target_df[~self.target_df[self.target_join_column].isin(self.source_df[self.source_join_column])].dropna()
         missing_in_source_results = pd.DataFrame({
             "Type": "Missing in Source",
             "Record Identifier": missing_in_source[self.target_join_column]
         })
-        missing_in_target_results = pd.DataFrame({
-            "Type": "Missing in Target",
-            "Record Identifier": missing_in_target[self.source_join_column]
-        })
-
-        results_df = pd.concat([missing_in_source_results, missing_in_target_results])
-
-        return results_df
+        return missing_in_source_results
     
 
     def get_all_columns(self):
