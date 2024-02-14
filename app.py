@@ -1,37 +1,54 @@
 import streamlit as st
 import pandas as pd
 
+from recon.recon import Reconciliation, load_csv
+
 def main():
     st.title("CSV File Comparison App")
 
     # Upload CSV files
     st.sidebar.header("Upload CSV Files")
     source = st.sidebar.file_uploader("Upload source csv", type=["csv"])
-    target = st.sidebar.file_uploader("Upload target csv", type=["csv"])
-
-    if source is not None and target is not None:
-        # Read CSV files
-        source_df = pd.read_csv(source)
-        target_df = pd.read_csv(target)
-
-        # Display uploaded data
+    if source:
+        source_df = load_csv(source)
         st.subheader("Data from source csv")
         st.write(source_df)
 
+    target = st.sidebar.file_uploader("Upload target csv", type=["csv"])
+    if target:
+        target_df = load_csv(target)
         st.subheader("Data from target csv")
         st.write(target_df)
 
-        # Compare files and identify missing records
-        column_to_compare = source_df.columns[0]
-        missing_in_target = source_df[~source_df[column_to_compare].isin(target_df[column_to_compare])].dropna()
-        missing_in_source = target_df[~target_df[column_to_compare].isin(source_df[column_to_compare])].dropna()
+    if source is not None and target is not None:
+        recon = Reconciliation(source_df, target_df)
+        missing_records_df = recon.get_missing_records()
 
-        st.subheader("Records in Source Missing in Target")
-        st.write(missing_in_target)
+        # compare columns
+        st.sidebar.title("Column Selection")
 
-        st.subheader("Records in Target Missing in Source")
-        st.write(missing_in_source)
-
+        # Checkbox to select all columns
+        select_all_columns = st.sidebar.checkbox("Select All Columns", key="select_all_columns")
+        columns = recon.get_all_columns()
+        if select_all_columns:
+            selected_columns = columns
+        else:
+            selected_columns = st.sidebar.multiselect("Select columns for comparison", columns)
+        column_comparison_df = recon.compare_columns(selected_columns)
+        
+        # Display results
+        result_df = pd.concat([missing_records_df, column_comparison_df]) if not column_comparison_df.empty else missing_records_df
+        st.subheader("Reconciliation Results")
+        if result_df.empty:
+            st.success("No discrepancies found!")
+        else:
+            st.download_button(
+                label="Download Reconciliation Results",
+                data=result_df.to_csv(index=False),
+                file_name="reconciliation_results.csv",
+                mime="text/csv"
+            )
+            st.write(result_df)
     else:
         st.warning("Please upload both CSV files.")
 
