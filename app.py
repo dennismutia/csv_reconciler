@@ -4,7 +4,7 @@ import pandas as pd
 from recon.recon import Reconciliation, load_csv
 
 def main():
-    st.title("CSV File Comparison App")
+    st.title("CSV Reconciler")
 
     # Upload CSV files
     st.sidebar.header("Upload CSV Files")
